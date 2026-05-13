@@ -548,5 +548,15 @@ nav {
   }, { threshold: 0.08 });
   reveals.forEach(el => io.observe(el));
 </script>
+<script>
+// Handle Supabase hash-based auth redirect
+(function() {
+  var hash = window.location.hash;
+  if (hash && hash.indexOf('access_token=') > -1) {
+    // Redirect to callback, keeping hash intact
+    window.location.href = '/auth/callback' + hash;
+  }
+})();
+</script>
 </body>
 </html>
