@@ -32,30 +32,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'No user ID returned' }, { status: 500 })
     }
 
-    // Step 2: Create profile — try with explicit role, handle constraint errors
+    // Step 2: Create profile
     const role = email === 'brightstacklabs@gmail.com' ? 'admin' : 'user'
-    const { error: profileError } = await sb.from('profiles').insert({
+    await sb.from('profiles').insert({
       id: userId,
       email,
       name,
       role,
     })
-
-    if (profileError) {
-      // If profiles table doesn't exist yet, create it via SQL
-      if (profileError.message.includes('does not exist') || profileError.code === '42P01') {
-        // Try raw SQL via RPC to create table
-        const { error: rpcError } = await sb.rpc('create_profiles_table', {}).catch(() => ({ error: null }))
-        if (rpcError) {
-          return NextResponse.json({ 
-            error: 'Profiles table missing. Create it in Supabase SQL Editor.',
-            userId,
-            hint: 'Run: create table profiles (id uuid primary key references auth.users on delete cascade, email text unique not null, name text, role text default user)'
-          }, { status: 500 })
-        }
-      }
-      console.error('Profile creation error:', profileError.message)
-    }
 
     return NextResponse.json({
       user: { id: userId, email, name },
