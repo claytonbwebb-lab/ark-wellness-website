@@ -21,7 +21,10 @@ export default function LoginPage() {
     if (mode === 'signup') {
       const { error: signUpError } = await supabase.auth.signUp({
         email, password,
-        options: { data: { name, email } } })
+        options: { 
+          data: { name, email },
+          emailRedirectTo: 'https://www.ark-wellness.co.uk/auth/callback',
+        } })
       if (signUpError) { setError(signUpError.message); setLoading(false); return }
       setSuccess('Check your email to confirm your account, then sign in.')
     } else {
