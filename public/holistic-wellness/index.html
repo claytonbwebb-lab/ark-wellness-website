@@ -217,13 +217,19 @@
   .try-content p { font-size: 0.9rem; color: var(--ark-text-light); line-height: 1.8; margin-bottom: 2rem; max-width: 420px; }
 
   /* FOOTER */
-  footer { background: var(--ark-charcoal); padding: 3rem 2.5rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
-  .footer-logo { display: flex; align-items: center; gap: 0.75rem; }
-  .footer-logo img { height: 44px; width: auto; }
-  .footer-copy { font-size: 0.75rem; color: rgba(245,240,232,0.35); letter-spacing: 0.05em; }
-  .footer-links { display: flex; gap: 1.5rem; }
-  .footer-link { font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(245,240,232,0.4); text-decoration: none; transition: color 0.2s; }
-  .footer-link:hover { color: var(--ark-gold-light); }
+  .footer-wrap { background: var(--ark-charcoal); }
+  .footer-main { padding: 60px 80px 48px; display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 48px; }
+  .footer-logo-img { height: 72px; width: auto; display: block; margin-bottom: 20px; }
+  .footer-brand-desc { font-size: 13px; line-height: 1.75; color: rgba(245,240,232,0.4); }
+  .footer-col-title { font-size: 10px; letter-spacing: 0.28em; text-transform: uppercase; color: var(--ark-gold); margin-bottom: 18px; display: block; }
+  .footer-links { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .footer-links a { text-decoration: none; font-size: 13px; color: rgba(245,240,232,0.42); transition: color 0.3s; }
+  .footer-links a:hover { color: var(--ark-gold-light); }
+  .footer-bottom { padding: 20px 80px; border-top: 1px solid rgba(196,150,90,0.12); display: flex; justify-content: space-between; align-items: center; }
+  .footer-bottom p { font-size: 11px; color: rgba(245,240,232,0.28); letter-spacing: 0.08em; }
+  .footer-bottom-links { display: flex; gap: 1.5rem; }
+  .footer-bottom-links a { font-size: 11px; color: rgba(245,240,232,0.28); letter-spacing: 0.08em; text-decoration: none; transition: color 0.2s; }
+  .footer-bottom-links a:hover { color: var(--ark-gold-light); }
 
   /* ANIMATIONS */
   .fade-up { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
@@ -255,7 +261,8 @@
     .try-image { min-height: 320px; }
     .try-content { padding: 2.5rem 2rem; }
     .testimonials-grid { grid-template-columns: 1fr; }
-    footer { flex-direction: column; align-items: flex-start; gap: 1.5rem; }
+    .footer-main { grid-template-columns: 1fr; padding: 48px 32px 40px; }
+    .footer-bottom { padding: 18px 32px; flex-direction: column; gap: 6px; text-align: center; }
   }
   @media (max-width: 600px) {
     .hero-stat-bar { grid-template-columns: 1fr; text-align: left; }
@@ -694,41 +701,47 @@
 
 <!-- FOOTER -->
 <footer>
-  <div class="footer-logo">
-    <img src="/holistic-wellness/ark-logo.png" alt="The Ark logo" />
-  </div>
-  <span class="footer-copy">&copy; 2026 Ark Wellness Ltd. All rights reserved. UK franctheire enquiries only.</span>
-  <div class="footer-links">
-    <a href="https://arkwellness.co.uk" target="_blank" class="footer-link">arkwellness.co.uk</a>
-    <a href="#investment" class="footer-link">Investment</a>
-    <a href="#get-information" class="footer-link">Enquire</a>
+  <div class="footer-wrap">
+    <div class="footer-main">
+      <div>
+        <img class="footer-logo-img" src="/holistic-wellness/ark-logo.png" alt="The Ark logo" />
+        <p class="footer-brand-desc">Combining sound, quartz and biometric science to deliver profound nervous system regulation and lasting emotional wellbeing.</p>
+      </div>
+      <div>
+        <span class="footer-col-title">Sessions</span>
+        <ul class="footer-links">
+          <li><a href="#">60 Min Regulate &amp; Reset</a></li>
+          <li><a href="#">75 Min Signature Session</a></li>
+          <li><a href="#">90 Min Recalibrate &amp; Restore</a></li>
+          <li><a href="#">Couples &amp; Carers</a></li>
+          <li><a href="#">Neurodiverse Facilitation</a></li>
+          <li><a href="#">Ultimate Realignment</a></li>
+        </ul>
+      </div>
+      <div>
+        <span class="footer-col-title">Locations</span>
+        <ul class="footer-links">
+          <li><a href="#">Ashton-under-Lyne</a></li>
+          <li><a href="#">Manchester City Centre</a></li>
+          <li><a href="#">Alderley Edge</a></li>
+          <li><a href="#">County Kerry, Ireland</a></li>
+        </ul>
+        <br/>
+        <span class="footer-col-title">Connect</span>
+        <ul class="footer-links">
+          <li><a href="https://arkwellness.co.uk" target="_blank">arkwellness.co.uk</a></li>
+          <li><a href="#investment">Franchise Opportunities</a></li>
+          <li><a href="#science">Research &amp; Science</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 Ark Wellness Ltd. All rights reserved.</p>
+      <div class="footer-bottom-links">
+        <a href="https://arkwellness.co.uk" target="_blank">arkwellness.co.uk</a>
+        <a href="#investment">Investment</a>
+        <a href="#get-information">Enquire</a>
+      </div>
+    </div>
   </div>
 </footer>
-
-<script>
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) entry.target.classList.add('visible');
-    });
-  }, { threshold: 0.12 });
-  document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
-
-  function handleSubmit(e) {
-    e.preventDefault();
-    document.getElementById('lead-form').style.display = 'none';
-    document.getElementById('form-success').style.display = 'block';
-  }
-
-  document.querySelectorAll('a[href^="#"]').forEach(a => {
-    a.addEventListener('click', function(e) {
-      const target = document.querySelector(ttheir.getAttribute('href'));
-      if (target) {
-        e.preventDefault();
-        const top = target.getBoundingClientRect().top + window.pageYOffset - 90;
-        window.scrollTo({ top, behavior: 'smooth' });
-      }
-    });
-  });
-</script>
-</body>
-</html>
