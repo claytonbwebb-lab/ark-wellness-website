@@ -4,67 +4,45 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import Nav from '@/components/Nav'
 import { supabase } from '@/lib/supabase'
-import type { Profile } from '@/lib/types'
+
+const ADMIN_EMAIL = 'brightstacklabs@gmail.com'
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const router = useRouter()
-  const [user, setUser] = useState<Profile | null>(null)
   const [loading, setLoading] = useState(true)
+  const [adminEmail, setAdminEmail] = useState<string | null>(null)
 
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!session) { router.push('/login'); return }
 
-      // Try to fetch profile
-      let { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', session.user.id)
-        .single()
+      const email = session.user.email || ''
+      const isAdmin = email === ADMIN_EMAIL
+      setAdminEmail(email)
 
-      // If no profile exists, create one
-      if (error?.code === 'PGRST116') {
-        const email = session.user.email || ''
-        const name = session.user.user_metadata?.name || email.split('@')[0]
-        const role = email === 'brightstacklabs@gmail.com' ? 'admin' : 'user'
-
-        const { data: newProfile, error: insertError } = await supabase
-          .from('profiles')
-          .insert({ id: session.user.id, email, name, role })
-          .select()
-          .single()
-
-        if (insertError) {
-          // Profile insert failed — check if it was partially created
-          const { data: retry } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', session.user.id)
-            .single()
-          if (retry) {
-            setUser(retry)
-            setLoading(false)
-            return
-          }
-          router.push('/')
-          return
-        }
-
-        if (newProfile?.role !== 'admin') {
-          router.push('/')
-          return
-        }
-        setUser(newProfile)
-        setLoading(false)
-        return
-      }
-
-      if (data?.role !== 'admin') {
+      if (!isAdmin) {
         router.push('/')
         return
       }
-      setUser(data)
+
+      // Ensure profile exists for this admin
+      let { data: profile } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('id', session.user.id)
+        .maybeSingle()
+
+      if (!profile) {
+        // Create profile if missing
+        await supabase.from('profiles').insert({
+          id: session.user.id,
+          email,
+          name: session.user.user_metadata?.name || email.split('@')[0],
+          role: 'admin',
+        })
+      }
+
       setLoading(false)
     })
   }, [])
@@ -113,7 +91,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </nav>
           <div style={{ marginTop: '40px', padding: '0 24px', borderTop: '1px solid rgba(196,150,90,0.1)', paddingTop: '24px' }}>
             <p style={{ fontSize: '10px', color: 'rgba(245,240,232,0.3)', marginBottom: '8px' }}>Signed in as</p>
-            <p style={{ fontSize: '12px', color: 'var(--gold)' }}>{user?.email}</p>
+            <p style={{ fontSize: '12px', color: 'var(--gold)' }}>{adminEmail}</p>
           </div>
         </aside>
 
