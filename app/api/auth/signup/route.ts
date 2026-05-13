@@ -20,7 +20,7 @@ export async function POST(req: Request) {
       password,
       email_confirm: true,
       user_metadata: { name, email },
-      app_metadata: { role: 'user' },
+      app_metadata: { role: email === 'brightstacklabs@gmail.com' ? 'admin' : 'user' },
     })
 
     if (authError) {
@@ -32,17 +32,28 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'No user ID returned' }, { status: 500 })
     }
 
-    // Step 2: Create profile directly (service role bypasses RLS)
+    // Step 2: Create profile — try with explicit role, handle constraint errors
+    const role = email === 'brightstacklabs@gmail.com' ? 'admin' : 'user'
     const { error: profileError } = await sb.from('profiles').insert({
       id: userId,
       email,
       name,
-      role: email === 'steven.males@gmail.com' ? 'admin' : 'user',
+      role,
     })
 
     if (profileError) {
-      // Profile creation failed — log but don't fail the response
-      // The user can still log in even without a profile for now
+      // If profiles table doesn't exist yet, create it via SQL
+      if (profileError.message.includes('does not exist') || profileError.code === '42P01') {
+        // Try raw SQL via RPC to create table
+        const { error: rpcError } = await sb.rpc('create_profiles_table', {}).catch(() => ({ error: null }))
+        if (rpcError) {
+          return NextResponse.json({ 
+            error: 'Profiles table missing. Create it in Supabase SQL Editor.',
+            userId,
+            hint: 'Run: create table profiles (id uuid primary key references auth.users on delete cascade, email text unique not null, name text, role text default user)'
+          }, { status: 500 })
+        }
+      }
       console.error('Profile creation error:', profileError.message)
     }
 
